@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Notifications</title>
+    <!-- ...reuse your modern styles... -->
+</head>
+<body>
+    <div class="container">
+        <h2>Upcoming Tasks</h2>
+        <ul>
+            {% for task in upcoming_tasks %}
+                <li>
+                    <strong>{{ task.title }}</strong> due on <span style="color:#4f8cff">{{ task.due_date }}</span>
+                </li>
+            {% empty %}
+                <li>No upcoming tasks.</li>
+            {% endfor %}
+        </ul>
+        <div class="link"><a href="{% url 'dashboard' %}">Back to Dashboard</a></div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Register | HeyAkash{% endblock %}
+
+{% block content %}
+<div class="container" style="display: flex; justify-content: center; align-items: center; min-height: 90vh;">
+    <form method="post"
+          style="animation:fadeInUp 0.7s; width:100%; max-width: 520px; background: #fff; border-radius: 18px; box-shadow: 0 6px 32px rgba(79,140,255,0.13); padding: 2.8rem 2.2rem 2rem; display: flex; flex-direction: column; gap: 1.2rem;">
+        <h2 style="text-align:center; margin-bottom:1.5rem; color:#22223b; letter-spacing:1px;">Create your account</h2>
+        {% csrf_token %}
+        {% for field in form %}
+            <div>
+                <label for="{{ field.id_for_label }}" style="font-weight:600; color:#22223b; display:block; margin-bottom:0.4rem;">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                    <small style="color:#888;">{{ field.help_text }}</small>
+                {% endif %}
+                {% if field.errors %}
+                    <div style="color:red;" class="field-error">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+        {% endfor %}
+        <button type="submit"
+                style="margin-top:0.5rem;width:100%;background:linear-gradient(90deg,#4f8cff 60%,#38b6ff 100%);color:#fff;border:none;border-radius:8px;padding:1rem;font-size:1.15rem;font-weight:600;cursor:pointer;transition:background 0.2s;box-shadow:0 2px 8px rgba(79,140,255,0.08);">
+            Register
+        </button>
+        <div class="link" style="text-align:center;margin-top:1.2rem;">
+            Already have an account? <a href="{% url 'login' %}" style="color:#4f8cff;text-decoration:underline;font-weight:500;">Login here</a>.
+        </div>
+    </form>
+</div>
+
+<div id="toast" class="toast" style="visibility: hidden; min-width: 240px; background: #ff4d4f; color: #fff; text-align: center; border-radius: 6px; padding: 1rem 1.5rem; position: fixed; z-index: 9999; left: 50%; top: 30px; transform: translateX(-50%); font-size: 1rem; box-shadow: 0 2px 12px rgba(0,0,0,0.12); opacity: 0; transition: opacity 0.4s, visibility 0.4s;"></div>
+
+<script>
+    function showToast(msg) {
+        var toast = document.getElementById("toast");
+        toast.textContent = msg;
+        toast.className = "toast show";
+        toast.style.visibility = "visible";
+        toast.style.opacity = "1";
+        setTimeout(function(){
+            toast.style.opacity = "0";
+            toast.style.visibility = "hidden";
+        }, 3500);
+    }
+
+    {% if form.errors %}
+        {% for field in form %}
+            {% for error in field.errors %}
+                showToast("{{ error|escapejs }}");
+            {% endfor %}
+        {% endfor %}
+    {% endif %}
+</script>
+{% endblock %}

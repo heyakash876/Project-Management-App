@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Projects Dashboard</title>
+    <!-- ...style similar to previous templates... -->
+</head>
+<body>
+    {% extends "base.html" %}
+    {% block title %}Projects | HeyAkash{% endblock %}
+    {% block content %}
+    <h2 style="text-align:center;">Your Projects</h2>
+    <a href="{% url 'create_project' %}" style="display:block;text-align:center;margin-bottom:1.5rem;color:#4f8cff;font-weight:600;">Create New Project</a>
+    <ul style="list-style:none; padding:0; max-width:500px; margin:0 auto;">
+        {% for project in projects %}
+            <li style="animation:fadeInUp 0.6s; background:#f6f8fa; border-radius:10px; box-shadow:0 2px 8px rgba(79,140,255,0.06); padding:1rem 1.2rem; margin-bottom:1.2rem;">
+                <a href="{% url 'project_detail' project.pk %}" style="color:#22223b; font-weight:500; text-decoration:none; font-size:1.1rem;">
+                    {{ project.name }}
+                </a>
+            </li>
+        {% empty %}
+            <li style="color:#aaa;">No projects yet.</li>
+        {% endfor %}
+    </ul>
+    <div class="link" style="text-align:center;margin-top:1.5rem;">
+        <a href="{% url 'dashboard' %}" style="color:#4f8cff;text-decoration:underline;font-weight:500;">&larr; Back to Dashboard</a>
+    </div>
+    {% endblock %}
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Task</title>
+    <!-- ...style similar to previous templates... -->
+</head>
+<body>
+    <div class="container">
+        {% extends "base.html" %}
+        {% block title %}Create Task | HeyAkash{% endblock %}
+        {% block content %}
+        <h2 style="text-align:center;">Create Task for {{ project.name }}</h2>
+        <form method="post" style="animation:fadeInUp 0.7s; max-width: 480px; margin: 0 auto; background: #f6f8fa; border-radius: 14px; box-shadow: 0 2px 12px rgba(79,140,255,0.10); padding: 2.2rem;">
+            {% csrf_token %}
+            {% for field in form %}
+                <div style="margin-bottom:1.4rem;">
+                    <label for="{{ field.id_for_label }}" style="font-weight:600; color:#22223b; display:block; margin-bottom:0.4rem;">{{ field.label }}</label>
+                    {% if field.name == "due_date" %}
+                        <input type="date" name="{{ field.name }}" id="{{ field.id_for_label }}" value="{{ field.value|default_if_none:'' }}" style="width:100%;padding:0.7rem;border:1.5px solid #c9c9c9;border-radius:6px;font-size:1rem;background:#fff;transition:border 0.2s;">
+                    {% elif field.field.widget.input_type == "select" or field.field.widget.input_type == "selectmultiple" %}
+                        <div style="margin-top:0.3rem;">{{ field }}</div>
+                    {% else %}
+                        {{ field }}
+                    {% endif %}
+                    {% if field.help_text %}
+                        <small style="color:#888;">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% if field.errors %}
+                        <div style="color:red;">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" style="margin-top:1rem;width:100%;background:linear-gradient(90deg,#4f8cff 60%,#38b6ff 100%);color:#fff;border:none;border-radius:6px;padding:0.8rem;font-size:1.1rem;font-weight:600;cursor:pointer;transition:background 0.2s;">Create Task</button>
+        </form>
+        <div class="link" style="text-align:center;margin-top:1.5rem;">
+            <a href="{% url 'project_detail' project.pk %}" style="color:#4f8cff;text-decoration:underline;font-weight:500;">&larr; Back to Project</a>
+        </div>
+        {% endblock %}
+    </div>
+</body>
+</html>

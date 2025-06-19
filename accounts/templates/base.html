@@ -1,0 +1,250 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}HeyAkash Project Manager{% endblock %}</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap">
+    <link rel="icon" type="image/svg+xml" href="{% static 'logo_heyakash.svg' %}">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Montserrat', Arial, sans-serif;
+            background: linear-gradient(120deg, #f6f8fa 60%, #e3eaff 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            min-width: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #22223b;
+            padding: 0.7rem 2rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+            min-height: 60px;
+            border-bottom: 2px solid #4f8cff;
+            box-sizing: border-box;
+        }
+        .navbar .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4f8cff;
+            letter-spacing: 1px;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .navbar .logo img {
+            height: 36px;
+            margin-right: 10px;
+            animation: rotateIn 1.2s;
+        }
+        .navbar .nav-links {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .navbar .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: color 0.2s, border-bottom 0.2s;
+            padding-bottom: 2px;
+            border-bottom: 2px solid transparent;
+            white-space: nowrap;
+        }
+        .navbar .nav-links a.active,
+        .navbar .nav-links a:focus {
+            color: #ffd700;
+            border-bottom: 2px solid #ffd700;
+        }
+        .navbar .nav-links a:hover {
+            color: #4f8cff;
+            border-bottom: 2px solid #4f8cff;
+        }
+        .container {
+            background: #fff;
+            margin: 100px auto 0 auto;
+            max-width: 700px;
+            width: 95vw;
+            box-sizing: border-box;
+            padding: 2.5rem 2rem 2rem 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+            min-width: 340px;
+            animation: fadeInUp 0.8s;
+        }
+        footer {
+            margin-top: auto;
+            background: #22223b;
+            color: #fff;
+            text-align: center;
+            padding: 1rem 0;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            animation: fadeIn 1.2s;
+        }
+        /* Calendar styles */
+        .calendar-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+            animation: fadeInUp 0.8s;
+        }
+        .calendar-table th, .calendar-table td {
+            border: 1px solid #e0e0e0;
+            padding: 0.7rem;
+            text-align: center;
+        }
+        .calendar-table th {
+            background: #f6f8fa;
+            color: #4f8cff;
+        }
+        .calendar-table td.today {
+            background: #e3eaff;
+            font-weight: bold;
+            color: #22223b;
+            border: 2px solid #4f8cff;
+        }
+        .calendar-table td.has-task {
+            background: #d1eaff;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .calendar-table td.has-task:hover {
+            background: #4f8cff;
+            color: #fff;
+        }
+        .calendar-popup {
+            display: none;
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, 0);
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+            padding: 2rem;
+            z-index: 10001;
+            min-width: 320px;
+            animation: fadeInUp 0.5s;
+        }
+        .calendar-popup h4 { margin-top: 0; }
+        .calendar-popup .close-btn {
+            background: #4f8cff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 0.3rem 0.8rem;
+            float: right;
+            cursor: pointer;
+        }
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-40px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        @keyframes fadeIn {
+            from { opacity: 0;}
+            to { opacity: 1;}
+        }
+        @keyframes rotateIn {
+            from { transform: rotate(-180deg) scale(0.5);}
+            to { transform: rotate(0deg) scale(1);}
+        }
+        /* Toast styles */
+        .toast {
+            visibility: hidden;
+            min-width: 240px;
+            background: #4f8cff;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 1rem 1.5rem;
+            position: fixed;
+            z-index: 9999;
+            left: 50%;
+            top: 30px;
+            transform: translateX(-50%);
+            font-size: 1rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+            opacity: 0;
+            transition: opacity 0.4s, visibility 0.4s;
+        }
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        @media (max-width: 700px) {
+            .navbar {
+                padding: 0.7rem 1rem;
+            }
+            .container {
+                padding: 1.2rem 0.5rem 1.2rem 0.5rem;
+            }
+            .navbar .logo {
+                font-size: 1.1rem;
+            }
+            .navbar .nav-links a {
+                margin-left: 0.7rem;
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <a class="logo" href="{% url 'dashboard' %}">
+            <img src="{% static 'logo_heyakash.svg' %}" alt="Logo">
+            HeyAkash
+        </a>
+        <div class="nav-links">
+            <a href="{% url 'dashboard' %}" class="{% if request.path == '/dashboard/' %}active{% endif %}">Dashboard</a>
+            <a href="{% url 'projects_dashboard' %}" class="{% if request.path|slice:"0:9" == '/projects' %}active{% endif %}">Projects</a>
+            <a href="{% url 'calendar_view' %}" class="{% if request.path == '/calendar/' %}active{% endif %}">Calendar</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'logout' %}">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'register' %}">Register</a>
+            {% endif %}
+        </div>
+    </nav>
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+    <div id="toast" class="toast"></div>
+    <footer>
+        &copy; heyakash
+    </footer>
+    <script>
+        // Toast logic
+        function showToast(msg) {
+            var toast = document.getElementById("toast");
+            toast.textContent = msg;
+            toast.className = "toast show";
+            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3500);
+        }
+        {% if messages %}
+            {% for message in messages %}
+                showToast("{{ message|escapejs }}");
+            {% endfor %}
+        {% endif %}
+        {% block extra_js %}{% endblock %}
+    </script>
+</body>
+</html>

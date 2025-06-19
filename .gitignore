@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# Django
+*.sqlite3
+db.sqlite3
+*.log
+*.pot
+*.pyc
+*.pyo
+*.db
+*.swp
+
+# Environment variables
+.env
+
+# Static and media files
+staticfiles/
+media/
+
+# Virtual environment
+venv/
+ENV/
+env/
+.venv/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# VSCode and IDEs
+.vscode/
+.idea/
+
+# Pip dependency management
+pip-log.txt
+
+# Migrations (optional – remove if you want to track them)
+**/migrations/*.pyc
+**/migrations/__pycache__/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/

@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}Task Calendar | HeyAkash{% endblock %}
+
+{% block content %}
+<style>
+    .calendar-table {
+        width: 100%;
+        max-width: 960px;
+        margin: 2rem auto;
+        border-collapse: collapse;
+        font-family: 'Segoe UI', sans-serif;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+    }
+    .calendar-table th, .calendar-table td {
+        border: 1px solid #eee;
+        padding: 1rem;
+        text-align: center;
+        vertical-align: top;
+        position: relative;
+    }
+    .calendar-table th {
+        background-color: #f5f7fa;
+        font-weight: bold;
+        color: #555;
+    }
+    .today {
+        background-color: #e3f2fd;
+        font-weight: bold;
+        border: 2px solid #2196f3;
+    }
+    .has-task {
+        background-color: #fffefa;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .has-task:hover {
+        background-color: #fff8dc;
+    }
+    .task-count {
+        display: inline-block;
+        background-color: #4f8cff;
+        color: white;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.6rem;
+        border-radius: 12px;
+        margin-top: 0.4rem;
+    }
+    .task-tooltip {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        border: 1px solid #ddd;
+        padding: 0.7rem 1rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        z-index: 999;
+        font-size: 0.88rem;
+        text-align: left;
+        border-radius: 6px;
+        min-width: 240px;
+    }
+    .has-task:hover .task-tooltip {
+        display: block;
+    }
+    .priority-high {
+        color: #e53935;
+        font-weight: bold;
+    }
+    .priority-medium {
+        color: #f9a825;
+        font-weight: bold;
+    }
+    .priority-low {
+        color: #43a047;
+        font-weight: bold;
+    }
+
+    .calendar-popup {
+        display: none;
+        position: fixed;
+        top: 15%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        z-index: 1000;
+        width: 90%;
+        max-width: 420px;
+    }
+    .close-btn {
+        position: absolute;
+        right: 1rem;
+        top: 1rem;
+        font-size: 1.2rem;
+        background: none;
+        border: none;
+        color: #555;
+        cursor: pointer;
+    }
+</style>
+
+<h2 style="text-align:center;">📅 Your Task Calendar</h2>
+
+<table class="calendar-table">
+    <thead>
+        <tr>
+            <th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for week in calendar_weeks %}
+        <tr>
+            {% for day in week %}
+                {% if day %}
+                    {% with day_str=day|stringformat:"s" %}
+                    {% with task_list=tasks_by_date|get_item:day_str %}
+                    <td class="{% if today == day %}today{% endif %} {% if task_list %}has-task{% endif %}" data-day="{{ day_str }}">
+                        <strong>{{ day }}</strong>
+                        {% if task_list %}
+                            <div class="task-count">{{ task_list|length }} Task{{ task_list|length|pluralize }}</div>
+                            <div class="task-tooltip">
+                                {% for t in task_list %}
+                                    •<strong style="color: #2196f3; margin-left: -10px;">{{ t.title }}</strong><br>
+                                    <span class="priority-{{ t.priority }}">
+                                        {{ t.priority|capfirst }}
+                                    </span><br>
+                                    <small style="color:#777;">Deadline: {{ t.due_date }}</small><br><br>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </td>
+                    {% endwith %}
+                    {% endwith %}
+                {% else %}
+                    <td></td>
+                {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="calendar-popup" id="calendar-popup">
+    <button class="close-btn" onclick="closePopup()">×</button>
+    <h4>Tasks on <span id="popup-date"></span></h4>
+    <div>
+        <strong>Pending</strong>
+        <ul id="popup-pending-tasks"></ul>
+    </div>
+    <div style="margin-top:1rem;">
+        <strong>Completed</strong>
+        <ul id="popup-completed-tasks"></ul>
+    </div>
+</div>
+
+<div style="text-align:center; margin-top:2rem;">
+    <a href="{% url 'dashboard' %}" style="text-decoration:underline; color:#4f8cff;">← Back to Dashboard</a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const tasksByDate = {{ tasks_by_date_json|safe }};
+
+    function closePopup() {
+        document.getElementById("calendar-popup").style.display = "none";
+    }
+
+    document.querySelectorAll(".calendar-table td.has-task").forEach(cell => {
+        cell.addEventListener("click", () => {
+            const date = cell.getAttribute("data-day");
+            const tasks = tasksByDate[date] || [];
+
+            document.getElementById("popup-date").textContent = date;
+            let pending = "", completed = "";
+
+            tasks.forEach(task => {
+                const item = `<li><strong>${task.title}</strong> <span style="color:#999;">(${task.status})</span></li>`;
+                if (task.status.toLowerCase() === "done") {
+                    completed += item;
+                } else {
+                    pending += item;
+                }
+            });
+
+            document.getElementById("popup-pending-tasks").innerHTML = pending || '<li style="color:#aaa;">No pending tasks.</li>';
+            document.getElementById("popup-completed-tasks").innerHTML = completed || '<li style="color:#aaa;">No completed tasks.</li>';
+            document.getElementById("calendar-popup").style.display = "block";
+        });
+    });
+
+    document.addEventListener("keydown", function(e) {
+        if (e.key === "Escape") closePopup();
+    });
+</script>
+{% endblock %}
